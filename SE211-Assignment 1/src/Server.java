@@ -29,8 +29,6 @@ public class Server {
         }
         String inputLine;
         while ((inputLine = scanner.nextLine()) != null) {
-            System.out.print("The Client Printed: ");
-            System.out.println(inputLine);
             if (processRequest(inputLine)) {
                 break;
             }
@@ -48,6 +46,7 @@ public class Server {
     private static boolean processRequest(String clientInput) {
         int tokenEnd = clientInput.indexOf(' ');
         String command = tokenEnd == -1 ? clientInput : clientInput.substring(0, tokenEnd);
+        System.out.println("Command: " + command);
         switch (command) {
             case "logMessage":
                 try {

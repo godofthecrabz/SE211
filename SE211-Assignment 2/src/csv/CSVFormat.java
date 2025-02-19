@@ -14,6 +14,13 @@ public class CSVFormat {
         hasHeader = true;
     }
 
+    public CSVFormat(char delimiter, boolean trimSpace, boolean ignoreEmptyLines, boolean hasHeader) {
+        this.delimiter = delimiter;
+        this.trimSpace = trimSpace;
+        this.ignoreEmptyLines = ignoreEmptyLines;
+        this.hasHeader = hasHeader;
+    }
+
     public char getDelimiter() {
         return delimiter;
     }
@@ -47,11 +54,7 @@ public class CSVFormat {
     }
 
     public CSVFormat copy() {
-        CSVFormat format = new CSVFormat();
-        format.setDelimiter(this.delimiter);
-        format.setTrimSpace(this.trimSpace);
-        format.setIgnoreEmptyLines(this.ignoreEmptyLines);
-        format.setHeaders(this.hasHeader);
-        return format;
+        return new CSVFormat(
+                this.delimiter, this.trimSpace, this.ignoreEmptyLines, this.hasHeader);
     }
 }

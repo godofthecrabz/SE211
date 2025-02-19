@@ -53,11 +53,14 @@ public class CSVRecord {
         return Collections.unmodifiableList(values);
     }
 
-    public Iterator<String> iterator() {
-        return values().iterator();
-    }
-
-    public Stream<String> stream() {
-        return values().stream();
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (String value : values) {
+            builder.append(value);
+            builder.append(format.getDelimiter());
+        }
+        String str = builder.toString();
+        return str.substring(0, str.length() - 1);
     }
 }

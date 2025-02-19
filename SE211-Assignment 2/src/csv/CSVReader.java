@@ -3,11 +3,11 @@ package csv;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class CSVReader implements AutoCloseable {
 
@@ -24,12 +24,16 @@ public class CSVReader implements AutoCloseable {
         read();
     }
 
+    public CSVReader(InputStream inputStream, CSVFormat format) {
+        this(new BufferedInputStream(inputStream), format);
+    }
+
     public CSVReader(File file, CSVFormat format) throws IOException {
         this(file.toPath(), format);
     }
 
     public CSVReader(Path path, CSVFormat format) throws IOException {
-        this(new BufferedInputStream(Files.newInputStream(path)), format);
+        this(Files.newInputStream(path), format);
     }
 
     public CSVReader(String path, CSVFormat format) throws IOException {
@@ -37,6 +41,50 @@ public class CSVReader implements AutoCloseable {
     }
 
     private void read() {
+        long lineCount = 0;
+        List<String> values = new ArrayList<>();
+        while (in.hasNextLine()) {
+            String line = in.nextLine();
+            int start = 0;
+            for (int i = 0; i < line.length(); i++) {
+                if (line.charAt(i) != format.getDelimiter()) {
+                    continue;
+                }
+                String value = line.substring(start, i);
+                if (format.shouldTrimSpace()) {
+                    value = value.replaceAll(" ", "");
+                }
+                values.add(value);
+                start = i + 1;
+            }
+            if (lineCount == 0 && format.hasHeader()) {
+                headers.addAll(values);
+            } else {
+                if (format.shouldIgnoreEmptyLines()) {
+                    boolean isEmpty = true;
+                    for (String value : values) {
+                        if (!value.isEmpty()) {
+                            isEmpty = false;
+                        }
+                    }
+                    if (!isEmpty) {
+                        records.add(new CSVRecord(headers, values, format));
+                    }
+                } else {
+                    records.add(new CSVRecord(headers, values, format));
+                }
+            }
+            values = new ArrayList<>();
+            lineCount++;
+        }
+    }
+
+    public List<String> getHeaders() {
+        return Collections.unmodifiableList(headers);
+    }
+
+    public List<CSVRecord> getRecords() {
+        return Collections.unmodifiableList(records);
     }
 
     @Override
